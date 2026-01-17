@@ -49,10 +49,26 @@ If deploying admin separately from the main website, update these paths in `admi
 
 ## API Configuration
 
-Update the API URL in `admin-utils.js`:
+Update the API URL in `config.js`:
 ```javascript
 window.API_BASE_URL = 'http://localhost:3000/api'; // Development
 // or
 window.API_BASE_URL = 'https://your-server.railway.app/api'; // Production
 ```
+
+## 🚀 Deployment to Vercel
+
+1. **Connect to Vercel:**
+   - Go to [vercel.com](https://vercel.com)
+   - Import this GitHub repository: `rubyautoparts25/admin-side`
+   - Vercel will auto-detect and deploy
+
+2. **Before deploying, update `config.js`:**
+   - Set `ADMIN_WEBSITE_URL` to your public website URL
+   - Set `API_BASE_URL` to your backend API URL
+
+3. **For separate deployment, update paths in `admin-login.html`:**
+   - Line 7: Update stylesheet link to your public website
+   - Line 109: Update logo image source to your public website
+   - Or use `config.js` to set `ADMIN_WEBSITE_URL` dynamically
 
