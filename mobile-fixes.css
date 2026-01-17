@@ -1,0 +1,250 @@
+/* Comprehensive Mobile Fixes for Admin Side */
+
+/* Base Mobile Styles */
+@media (max-width: 768px) {
+    /* Prevent horizontal scrolling */
+    * {
+        max-width: 100%;
+    }
+    
+    html, body {
+        overflow-x: hidden;
+        width: 100%;
+    }
+    
+    /* Admin Login Page */
+    .login-container {
+        padding: 15px !important;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .login-box {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 25px 20px !important;
+        margin: 0;
+        border-radius: 10px;
+    }
+    
+    .login-logo img {
+        width: 60px !important;
+        height: 60px !important;
+    }
+    
+    .login-logo h1 {
+        font-size: 1.4rem !important;
+    }
+    
+    .form-group-login input {
+        font-size: 16px !important;
+        padding: 14px 16px !important;
+        min-height: 48px;
+        width: 100%;
+    }
+    
+    .login-btn {
+        width: 100% !important;
+        padding: 16px !important;
+        font-size: 16px !important;
+        min-height: 48px;
+        margin-top: 15px;
+    }
+    
+    /* Admin Modals */
+    .admin-modal {
+        padding: 10px !important;
+    }
+    
+    .admin-modal-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        max-height: 95vh !important;
+        border-radius: 10px;
+        overflow-y: auto;
+    }
+    
+    .admin-modal-header {
+        padding: 15px !important;
+        flex-wrap: wrap;
+    }
+    
+    .admin-modal-header h2 {
+        font-size: 1.2rem !important;
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .admin-modal-close {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 1.5rem !important;
+        min-width: 36px;
+    }
+    
+    .admin-modal-form {
+        padding: 15px !important;
+    }
+    
+    .admin-form-row {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+    
+    .admin-form-group {
+        width: 100% !important;
+        margin-bottom: 18px;
+    }
+    
+    .admin-form-group label {
+        font-size: 0.95rem !important;
+        margin-bottom: 8px;
+        display: block;
+    }
+    
+    .admin-form-group input,
+    .admin-form-group select,
+    .admin-form-group textarea {
+        width: 100% !important;
+        font-size: 16px !important;
+        padding: 14px 16px !important;
+        min-height: 48px;
+        box-sizing: border-box;
+    }
+    
+    .admin-form-group textarea {
+        min-height: 100px;
+    }
+    
+    .admin-form-actions {
+        flex-direction: column !important;
+        gap: 12px !important;
+        margin-top: 20px;
+    }
+    
+    .admin-btn {
+        width: 100% !important;
+        padding: 16px !important;
+        font-size: 16px !important;
+        min-height: 48px;
+        justify-content: center;
+    }
+    
+    /* Admin buttons on cards */
+    .admin-part-actions {
+        position: absolute !important;
+        top: 10px !important;
+        right: 10px !important;
+        opacity: 1 !important;
+        display: flex !important;
+        gap: 8px;
+        z-index: 100;
+    }
+    
+    .admin-edit-btn,
+    .admin-delete-btn {
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px;
+        min-height: 40px;
+        font-size: 1rem !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    
+    /* Admin add part button */
+    .admin-add-part-container {
+        margin: 15px 0 !important;
+        padding: 0 15px;
+    }
+    
+    .admin-add-part-btn {
+        width: 100% !important;
+        padding: 16px !important;
+        font-size: 16px !important;
+        min-height: 48px;
+        justify-content: center;
+    }
+    
+    /* Admin logout button */
+    .admin-logout-btn {
+        padding: 10px 16px !important;
+        font-size: 0.9rem !important;
+        min-height: 40px;
+        margin-left: 10px;
+    }
+    
+    /* Image previews */
+    .admin-image-preview {
+        width: 100% !important;
+        margin-top: 10px;
+    }
+    
+    .admin-image-preview img {
+        max-width: 100% !important;
+        height: auto !important;
+        border-radius: 8px;
+    }
+}
+
+/* Extra Small Mobile */
+@media (max-width: 480px) {
+    .login-box {
+        padding: 20px 15px !important;
+    }
+    
+    .login-logo img {
+        width: 50px !important;
+        height: 50px !important;
+    }
+    
+    .login-logo h1 {
+        font-size: 1.2rem !important;
+    }
+    
+    .admin-modal-content {
+        max-height: 98vh !important;
+        border-radius: 8px;
+    }
+    
+    .admin-modal-header {
+        padding: 12px !important;
+    }
+    
+    .admin-modal-header h2 {
+        font-size: 1.1rem !important;
+    }
+    
+    .admin-modal-form {
+        padding: 12px !important;
+    }
+    
+    .admin-form-group {
+        margin-bottom: 15px;
+    }
+    
+    .admin-edit-btn,
+    .admin-delete-btn {
+        width: 36px !important;
+        height: 36px !important;
+    }
+}
+
+/* Landscape Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .login-container {
+        padding: 10px;
+    }
+    
+    .login-box {
+        max-height: 95vh;
+        overflow-y: auto;
+    }
+    
+    .admin-modal-content {
+        max-height: 90vh;
+    }
+}
+
