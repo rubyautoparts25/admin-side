@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - RUBY AUTO PARTS</title>
-    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../styles.css" id="mainStylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <style>
         .login-container {
@@ -106,7 +106,7 @@
     <div class="login-container">
         <div class="login-box">
             <div class="login-logo">
-                <img src="../logo.jpeg" alt="Ruby Auto Parts Logo">
+                <img src="../logo.jpeg" alt="Ruby Auto Parts Logo" id="logoImage">
                 <h1>Admin Login</h1>
                 <p style="color: var(--text-light); margin-top: 5px;">Parts Management System</p>
             </div>
@@ -124,7 +124,7 @@
             </form>
             
             <div class="back-link">
-                <a href="../index.html"><i class="fas fa-arrow-left"></i> Back to Website</a>
+                <a href="../index.html" id="backLink"><i class="fas fa-arrow-left"></i> Back to Website</a>
             </div>
         </div>
     </div>
@@ -145,7 +145,8 @@
                 sessionStorage.setItem('adminLoginTime', Date.now().toString());
                 
                 // Redirect to home page
-                window.location.href = '../index.html';
+                const websiteUrl = window.ADMIN_WEBSITE_URL || '../index.html';
+                window.location.href = websiteUrl;
             } else {
                 errorDiv.textContent = 'Incorrect password. Please try again.';
                 errorDiv.style.display = 'block';
@@ -156,8 +157,18 @@
 
         // Check if already logged in
         if (sessionStorage.getItem('isAdmin') === 'true') {
-            window.location.href = '../index.html';
+            const websiteUrl = window.ADMIN_WEBSITE_URL || '../index.html';
+            window.location.href = websiteUrl;
         }
+        
+        // Load config if available
+        const configScript = document.createElement('script');
+        configScript.src = 'config.js';
+        configScript.onerror = function() {
+            // Config file not found, use defaults
+            console.log('Config file not found, using default paths');
+        };
+        document.head.appendChild(configScript);
     </script>
 </body>
 </html>
