@@ -205,6 +205,17 @@ function createAddPartModal() {
                     <label><i class="fas fa-rupee-sign"></i> Price (₹)</label>
                     <input type="number" id="newPartPrice" placeholder="e.g., 1500" min="0" step="0.01">
                 </div>
+                <div class="admin-form-row">
+                    <div class="admin-form-group">
+                        <label><i class="fas fa-boxes"></i> Stock Quantity *</label>
+                        <input type="number" id="newPartStockQuantity" placeholder="e.g., 50" min="0" value="0" required>
+                    </div>
+                    <div class="admin-form-group">
+                        <label><i class="fas fa-exclamation-triangle"></i> Low Stock Threshold</label>
+                        <input type="number" id="newPartLowStockThreshold" placeholder="e.g., 5" min="0" value="5">
+                        <small style="color: var(--text-light); font-size: 0.85rem;">Alert when stock falls below this number</small>
+                    </div>
+                </div>
                 <div class="admin-form-actions">
                     <button type="submit" class="admin-btn admin-btn-primary">
                         <i class="fas fa-save"></i> Save Part
@@ -293,11 +304,15 @@ async function saveNewPart(event) {
     const specifications = document.getElementById('newPartSpecifications').value.trim();
     const imageUrl = document.getElementById('newPartImageUrl').value.trim();
     const price = document.getElementById('newPartPrice').value.trim();
+    const stockQuantity = document.getElementById('newPartStockQuantity').value.trim();
+    const lowStockThreshold = document.getElementById('newPartLowStockThreshold').value.trim();
     
     if (description) formData.append('description', description);
     if (specifications) formData.append('specifications', specifications);
     if (imageUrl) formData.append('imageUrl', imageUrl);
     if (price) formData.append('price', price);
+    if (stockQuantity) formData.append('stockQuantity', stockQuantity);
+    if (lowStockThreshold) formData.append('lowStockThreshold', lowStockThreshold);
     
     // Add image file if uploaded (check both inputs)
     const fileInput = document.getElementById('newPartImageFile');
@@ -353,16 +368,13 @@ async function saveNewPart(event) {
             }
             closeAddPartModal();
             
-            // Reload parts - use the category from URL (the page we're viewing)
-            const urlParams = new URLSearchParams(window.location.search);
-            const currentCategory = urlParams.get('category');
-            
-            if (currentCategory && typeof window.loadCategoryParts === 'function') {
-                console.log('🔄 Reloading parts for category:', currentCategory);
-                // Wait a moment for database to save, then reload
+            // Reload parts - check if we're on dashboard or category page
+            if (typeof window.loadParts === 'function') {
+                // We're on admin dashboard
+                console.log('🔄 Reloading parts on dashboard...');
                 setTimeout(async () => {
                     try {
-                        await window.loadCategoryParts(currentCategory);
+                        await window.loadParts();
                         console.log('✅ Parts reloaded successfully');
                     } catch (error) {
                         console.error('❌ Error reloading parts:', error);
@@ -370,10 +382,27 @@ async function saveNewPart(event) {
                     }
                 }, 800);
             } else {
-                // Fallback to page reload
-                setTimeout(() => {
-                    window.location.reload();
-                }, 500);
+                // Check if we're on category page
+                const urlParams = new URLSearchParams(window.location.search);
+                const currentCategory = urlParams.get('category');
+                
+                if (currentCategory && typeof window.loadCategoryParts === 'function') {
+                    console.log('🔄 Reloading parts for category:', currentCategory);
+                    setTimeout(async () => {
+                        try {
+                            await window.loadCategoryParts(currentCategory);
+                            console.log('✅ Parts reloaded successfully');
+                        } catch (error) {
+                            console.error('❌ Error reloading parts:', error);
+                            window.location.reload();
+                        }
+                    }, 800);
+                } else {
+                    // Fallback to page reload
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
+                }
             }
         } else {
             console.error('❌ Server error:', result);
@@ -420,6 +449,8 @@ async function openEditPartModal(partId) {
         document.getElementById('editPartDescription').value = part.description || '';
         document.getElementById('editPartSpecifications').value = part.specifications || '';
         document.getElementById('editPartPrice').value = part.price || '';
+        document.getElementById('editPartStockQuantity').value = part.stockQuantity !== undefined ? part.stockQuantity : 0;
+        document.getElementById('editPartLowStockThreshold').value = part.lowStockThreshold !== undefined ? part.lowStockThreshold : 5;
         
         // Show image preview if exists
         if (part.image) {
@@ -528,6 +559,17 @@ function createEditPartModal() {
                     <label><i class="fas fa-rupee-sign"></i> Price (₹)</label>
                     <input type="number" id="editPartPrice" placeholder="e.g., 1500" min="0" step="0.01">
                 </div>
+                <div class="admin-form-row">
+                    <div class="admin-form-group">
+                        <label><i class="fas fa-boxes"></i> Stock Quantity *</label>
+                        <input type="number" id="editPartStockQuantity" placeholder="e.g., 50" min="0" value="0" required>
+                    </div>
+                    <div class="admin-form-group">
+                        <label><i class="fas fa-exclamation-triangle"></i> Low Stock Threshold</label>
+                        <input type="number" id="editPartLowStockThreshold" placeholder="e.g., 5" min="0" value="5">
+                        <small style="color: var(--text-light); font-size: 0.85rem;">Alert when stock falls below this number</small>
+                    </div>
+                </div>
                 <div class="admin-form-actions">
                     <button type="submit" class="admin-btn admin-btn-primary">
                         <i class="fas fa-save"></i> Update Part
@@ -604,11 +646,15 @@ async function updatePart(event) {
     const specifications = document.getElementById('editPartSpecifications').value.trim();
     const imageUrl = document.getElementById('editPartImageUrl').value.trim();
     const price = document.getElementById('editPartPrice').value.trim();
+    const stockQuantity = document.getElementById('editPartStockQuantity').value.trim();
+    const lowStockThreshold = document.getElementById('editPartLowStockThreshold').value.trim();
     
     if (description) formData.append('description', description);
     if (specifications) formData.append('specifications', specifications);
     if (imageUrl) formData.append('imageUrl', imageUrl);
     if (price) formData.append('price', price);
+    if (stockQuantity) formData.append('stockQuantity', stockQuantity);
+    if (lowStockThreshold) formData.append('lowStockThreshold', lowStockThreshold);
     
     // Add image file if uploaded (check both inputs)
     const fileInput = document.getElementById('editPartImageFile');

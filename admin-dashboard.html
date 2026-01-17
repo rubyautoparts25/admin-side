@@ -37,11 +37,54 @@
     <!-- Main Content -->
     <main style="padding: 40px 0; min-height: calc(100vh - 100px);">
         <div class="container">
-            <!-- Add Part Button -->
-            <div class="admin-add-part-container">
-                <button class="admin-add-part-btn" onclick="openAddPartModal()">
-                    <i class="fas fa-plus"></i> Add New Part
-                </button>
+            <!-- Inventory Summary -->
+            <div id="inventorySummary" style="background: white; border-radius: 12px; padding: 25px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                    <h2 style="margin: 0; font-size: 1.5rem; color: var(--text-dark);">
+                        <i class="fas fa-chart-line"></i> Inventory Summary
+                    </h2>
+                    <button class="admin-add-part-btn" onclick="openAddPartModal()" style="margin: 0;">
+                        <i class="fas fa-plus"></i> Add New Part
+                    </button>
+                </div>
+                <div id="inventoryStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                    <div style="text-align: center; padding: 15px; background: var(--beige-light); border-radius: 8px;">
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--orange-dark);" id="totalParts">0</div>
+                        <div style="color: var(--text-light); font-size: 0.9rem; margin-top: 5px;">Total Parts</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: var(--beige-light); border-radius: 8px;">
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--orange-dark);" id="totalStock">0</div>
+                        <div style="color: var(--text-light); font-size: 0.9rem; margin-top: 5px;">Total Stock</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #fff3cd; border-radius: 8px; border: 2px solid #ffc107;" id="lowStockAlert">
+                        <div style="font-size: 2rem; font-weight: 700; color: #f57c00;" id="lowStockCount">0</div>
+                        <div style="color: var(--text-light); font-size: 0.9rem; margin-top: 5px;">
+                            <i class="fas fa-exclamation-triangle"></i> Low Stock Items
+                        </div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #f8d7da; border-radius: 8px; border: 2px solid #dc3545;" id="outOfStockAlert">
+                        <div style="font-size: 2rem; font-weight: 700; color: #dc3545;" id="outOfStockCount">0</div>
+                        <div style="color: var(--text-light); font-size: 0.9rem; margin-top: 5px;">
+                            <i class="fas fa-times-circle"></i> Out of Stock
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Low Stock Alert Banner -->
+            <div id="lowStockBanner" style="display: none; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i>
+                        <div>
+                            <h3 style="margin: 0; font-size: 1.2rem;">Low Stock Alert</h3>
+                            <p style="margin: 5px 0 0 0; opacity: 0.9;" id="lowStockMessage">Some items are running low on stock</p>
+                        </div>
+                    </div>
+                    <button onclick="scrollToLowStock()" style="background: white; color: #ff6b6b; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                        View Items <i class="fas fa-arrow-down"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- Parts List -->
@@ -81,11 +124,26 @@
             if (!checkAdminAuth()) return;
 
             try {
+                // Admin needs stock info, so we'll fetch all fields including stock
                 const response = await fetch(`${window.API_BASE_URL}/parts`);
                 const result = await response.json();
 
                 if (result.success && result.data) {
-                    displayParts(result.data);
+                    // For admin, we need to fetch individual parts to get stock info
+                    // since the list endpoint excludes stock
+                    const partsWithStock = await Promise.all(
+                        result.data.map(async (part) => {
+                            try {
+                                const partResponse = await fetch(`${window.API_BASE_URL}/parts/${part._id}`);
+                                const partResult = await partResponse.json();
+                                return partResult.success ? partResult.data : part;
+                            } catch (e) {
+                                return part;
+                            }
+                        })
+                    );
+                    displayParts(partsWithStock);
+                    updateInventorySummary(partsWithStock);
                 } else {
                     document.getElementById('partsContainer').innerHTML = `
                         <div style="text-align: center; padding: 40px; color: var(--text-light);">
@@ -102,6 +160,54 @@
                         <p>Error loading parts. Please check your connection and try again.</p>
                     </div>
                 `;
+            }
+        }
+
+        // Update inventory summary
+        function updateInventorySummary(parts) {
+            let totalParts = parts.length;
+            let totalStock = 0;
+            let lowStockCount = 0;
+            let outOfStockCount = 0;
+            const lowStockItems = [];
+
+            parts.forEach(part => {
+                const stock = part.stockQuantity !== undefined ? parseInt(part.stockQuantity) : 0;
+                const threshold = part.lowStockThreshold !== undefined ? parseInt(part.lowStockThreshold) : 5;
+                
+                totalStock += stock;
+                
+                if (stock === 0) {
+                    outOfStockCount++;
+                } else if (stock <= threshold) {
+                    lowStockCount++;
+                    lowStockItems.push(part);
+                }
+            });
+
+            document.getElementById('totalParts').textContent = totalParts;
+            document.getElementById('totalStock').textContent = totalStock.toLocaleString();
+            document.getElementById('lowStockCount').textContent = lowStockCount;
+            document.getElementById('outOfStockCount').textContent = outOfStockCount;
+
+            // Show/hide low stock banner
+            const banner = document.getElementById('lowStockBanner');
+            if (lowStockCount > 0 || outOfStockCount > 0) {
+                banner.style.display = 'block';
+                const message = outOfStockCount > 0 
+                    ? `${outOfStockCount} item(s) out of stock, ${lowStockCount} item(s) running low`
+                    : `${lowStockCount} item(s) running low on stock`;
+                document.getElementById('lowStockMessage').textContent = message;
+            } else {
+                banner.style.display = 'none';
+            }
+        }
+
+        // Scroll to low stock items
+        function scrollToLowStock() {
+            const lowStockElements = document.querySelectorAll('.low-stock-item');
+            if (lowStockElements.length > 0) {
+                lowStockElements[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
 
@@ -140,8 +246,16 @@
                 `;
 
                 partsByCategory[category].forEach(part => {
+                    const stock = part.stockQuantity !== undefined ? parseInt(part.stockQuantity) : 0;
+                    const threshold = part.lowStockThreshold !== undefined ? parseInt(part.lowStockThreshold) : 5;
+                    const isLowStock = stock > 0 && stock <= threshold;
+                    const isOutOfStock = stock === 0;
+                    const stockClass = isOutOfStock ? 'out-of-stock-item' : (isLowStock ? 'low-stock-item' : '');
+                    const stockColor = isOutOfStock ? '#dc3545' : (isLowStock ? '#ff9800' : '#4caf50');
+                    const stockBg = isOutOfStock ? '#f8d7da' : (isLowStock ? '#fff3cd' : '#d4edda');
+                    
                     html += `
-                        <div class="part-card admin-mode" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: relative;">
+                        <div class="part-card admin-mode ${stockClass}" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: relative; ${isLowStock || isOutOfStock ? 'border-left: 4px solid ' + stockColor + ';' : ''}">
                             <div class="admin-part-actions">
                                 <button class="admin-edit-btn" onclick="openEditPartModal('${part._id}')" title="Edit">
                                     <i class="fas fa-edit"></i>
@@ -150,6 +264,11 @@
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
+                            ${isLowStock || isOutOfStock ? `
+                                <div style="position: absolute; top: 10px; right: 50px; background: ${stockBg}; color: ${stockColor}; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; z-index: 10;">
+                                    <i class="fas ${isOutOfStock ? 'fa-times-circle' : 'fa-exclamation-triangle'}"></i> ${isOutOfStock ? 'Out of Stock' : 'Low Stock'}
+                                </div>
+                            ` : ''}
                             ${part.image ? `
                                 <div style="width: 100%; height: 200px; margin-bottom: 15px; border-radius: 8px; overflow: hidden; background: var(--beige-light);">
                                     <img src="${part.image}" alt="${part.partName}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -172,11 +291,24 @@
                             <div style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 5px;">
                                 <strong>Part Brand:</strong> ${part.partBrand || 'N/A'}
                             </div>
-                            ${part.price ? `
-                                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--beige-dark);">
-                                    <span style="font-size: 1.3rem; color: var(--orange-dark); font-weight: 700;">₹${parseFloat(part.price).toLocaleString('en-IN')}</span>
+                            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--beige-dark); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                ${part.price ? `
+                                    <div>
+                                        <span style="font-size: 1.3rem; color: var(--orange-dark); font-weight: 700;">₹${parseFloat(part.price).toLocaleString('en-IN')}</span>
+                                    </div>
+                                ` : ''}
+                                <div style="text-align: right;">
+                                    <div style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 3px;">Stock</div>
+                                    <div style="font-size: 1.2rem; font-weight: 700; color: ${stockColor};">
+                                        <i class="fas fa-boxes"></i> ${stock.toLocaleString()}
+                                    </div>
+                                    ${threshold > 0 ? `
+                                        <div style="font-size: 0.75rem; color: var(--text-light); margin-top: 2px;">
+                                            Threshold: ${threshold}
+                                        </div>
+                                    ` : ''}
                                 </div>
-                            ` : ''}
+                            </div>
                         </div>
                     `;
                 });
@@ -189,6 +321,10 @@
 
             container.innerHTML = html;
         }
+
+        // Make functions globally accessible
+        window.loadParts = loadParts;
+        window.scrollToLowStock = scrollToLowStock;
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
