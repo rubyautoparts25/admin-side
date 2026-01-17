@@ -289,7 +289,7 @@
                                 </button>
                             </div>
                             ${isLowStock || isOutOfStock ? `
-                                <div style="position: absolute; top: 10px; right: 50px; background: ${stockBg}; color: ${stockColor}; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; z-index: 10;">
+                                <div style="position: absolute; top: 10px; right: 100px; background: ${stockBg}; color: ${stockColor}; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; z-index: 5; white-space: nowrap; max-width: calc(100% - 120px);">
                                     <i class="fas ${isOutOfStock ? 'fa-times-circle' : 'fa-exclamation-triangle'}"></i> ${isOutOfStock ? 'Out of Stock' : 'Low Stock'}
                                 </div>
                             ` : ''}
