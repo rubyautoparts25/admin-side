@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Admin Dashboard - RUBY AUTO PARTS</title>
+    <!-- Main stylesheet from public website -->
+    <link rel="stylesheet" href="https://public-website-alpha-cyan.vercel.app/styles.css" id="mainStylesheet" onerror="this.onerror=null; this.href='';">
+    <link rel="stylesheet" href="admin-styles.css">
+    <link rel="stylesheet" href="mobile-fixes.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+    <!-- Admin Header -->
+    <header style="background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 15px 0; position: sticky; top: 0; z-index: 1000;">
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <img src="https://public-website-alpha-cyan.vercel.app/logo.jpeg" alt="Logo" style="height: 40px; width: auto;" onerror="this.style.display='none';">
+                    <h1 style="margin: 0; font-size: 1.5rem; color: var(--orange-dark);">Admin Dashboard</h1>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <a href="https://public-website-alpha-cyan.vercel.app/" target="_blank" style="padding: 10px 20px; background: var(--beige-light); color: var(--text-dark); text-decoration: none; border-radius: 8px; font-size: 0.9rem;">
+                        <i class="fas fa-external-link-alt"></i> View Website
+                    </a>
+                    <button class="admin-logout-btn" onclick="logoutAdmin()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main style="padding: 40px 0; min-height: calc(100vh - 100px);">
+        <div class="container">
+            <!-- Add Part Button -->
+            <div class="admin-add-part-container">
+                <button class="admin-add-part-btn" onclick="openAddPartModal()">
+                    <i class="fas fa-plus"></i> Add New Part
+                </button>
+            </div>
+
+            <!-- Parts List -->
+            <div id="partsContainer" style="margin-top: 30px;">
+                <div style="text-align: center; padding: 40px; color: var(--text-light);">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                    <p>Loading parts...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="admin-utils.js"></script>
+    <script>
+        // Check admin authentication
+        function checkAdminAuth() {
+            if (sessionStorage.getItem('isAdmin') !== 'true') {
+                window.location.href = 'admin-login.html';
+                return false;
+            }
+            return true;
+        }
+
+        // Logout function
+        function logoutAdmin() {
+            if (confirm('Are you sure you want to logout?')) {
+                sessionStorage.removeItem('isAdmin');
+                sessionStorage.removeItem('adminLoginTime');
+                window.location.href = 'admin-login.html';
+            }
+        }
+
+        // Load parts on page load
+        async function loadParts() {
+            if (!checkAdminAuth()) return;
+
+            try {
+                const response = await fetch(`${window.API_BASE_URL}/parts`);
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    displayParts(result.data);
+                } else {
+                    document.getElementById('partsContainer').innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--text-light);">
+                            <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                            <p>No parts found. Click "Add New Part" to get started.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading parts:', error);
+                document.getElementById('partsContainer').innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #f44336;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                        <p>Error loading parts. Please check your connection and try again.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Display parts
+        function displayParts(parts) {
+            const container = document.getElementById('partsContainer');
+            
+            if (parts.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--text-light);">
+                        <i class="fas fa-box-open" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                        <p>No parts found. Click "Add New Part" to get started.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Group by category
+            const partsByCategory = {};
+            parts.forEach(part => {
+                const category = part.category || 'uncategorized';
+                if (!partsByCategory[category]) {
+                    partsByCategory[category] = [];
+                }
+                partsByCategory[category].push(part);
+            });
+
+            let html = '';
+            Object.keys(partsByCategory).forEach(category => {
+                html += `
+                    <div style="margin-bottom: 40px;">
+                        <h2 style="font-size: 1.5rem; color: var(--text-dark); margin-bottom: 20px; text-transform: capitalize; border-bottom: 2px solid var(--orange-dark); padding-bottom: 10px;">
+                            ${category.replace(/-/g, ' ')}
+                        </h2>
+                        <div class="parts-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                `;
+
+                partsByCategory[category].forEach(part => {
+                    html += `
+                        <div class="part-card admin-mode" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: relative;">
+                            <div class="admin-part-actions">
+                                <button class="admin-edit-btn" onclick="openEditPartModal('${part._id}')" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="admin-delete-btn" onclick="deletePart('${part._id}', '${part.partName.replace(/'/g, "\\'")}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            ${part.image ? `
+                                <div style="width: 100%; height: 200px; margin-bottom: 15px; border-radius: 8px; overflow: hidden; background: var(--beige-light);">
+                                    <img src="${part.image}" alt="${part.partName}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <div style="width: 100%; height: 100%; display: none; align-items: center; justify-content: center; background: var(--beige-light);">
+                                        <i class="fas fa-image" style="font-size: 2rem; color: var(--text-light);"></i>
+                                    </div>
+                                </div>
+                            ` : `
+                                <div style="width: 100%; height: 200px; margin-bottom: 15px; border-radius: 8px; background: var(--beige-light); display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-image" style="font-size: 2rem; color: var(--text-light);"></i>
+                                </div>
+                            `}
+                            <h3 style="font-size: 1.2rem; color: var(--text-dark); margin-bottom: 10px; font-weight: 600;">${part.partName}</h3>
+                            <div style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 5px;">
+                                <strong>Part Number:</strong> ${part.partNumber || 'N/A'}
+                            </div>
+                            <div style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 5px;">
+                                <strong>Car Brand:</strong> ${part.carBrand || 'N/A'}
+                            </div>
+                            <div style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 5px;">
+                                <strong>Part Brand:</strong> ${part.partBrand || 'N/A'}
+                            </div>
+                            ${part.price ? `
+                                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--beige-dark);">
+                                    <span style="font-size: 1.3rem; color: var(--orange-dark); font-weight: 700;">₹${parseFloat(part.price).toLocaleString('en-IN')}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAdminAuth();
+            loadParts();
+        });
+    </script>
+</body>
+</html>
+

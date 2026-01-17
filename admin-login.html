@@ -205,9 +205,8 @@
                 sessionStorage.setItem('isAdmin', 'true');
                 sessionStorage.setItem('adminLoginTime', Date.now().toString());
                 
-                // Redirect to home page
-                const websiteUrl = window.ADMIN_WEBSITE_URL || '../index.html';
-                window.location.href = websiteUrl;
+                // Redirect to admin dashboard
+                window.location.href = 'admin-dashboard.html';
             } else {
                 errorDiv.textContent = 'Incorrect password. Please try again.';
                 errorDiv.style.display = 'block';
@@ -218,8 +217,7 @@
 
         // Check if already logged in
         if (sessionStorage.getItem('isAdmin') === 'true') {
-            const websiteUrl = window.ADMIN_WEBSITE_URL || '../index.html';
-            window.location.href = websiteUrl;
+            window.location.href = 'admin-dashboard.html';
         }
         
         // Load config if available

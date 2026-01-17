@@ -2,11 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=admin-login.html">
-    <title>Admin Login - Redirecting...</title>
+    <meta http-equiv="refresh" content="0; url=admin-dashboard.html">
+    <title>Admin Dashboard - Redirecting...</title>
+    <script>
+        // Check if logged in, redirect accordingly
+        if (sessionStorage.getItem('isAdmin') === 'true') {
+            window.location.href = 'admin-dashboard.html';
+        } else {
+            window.location.href = 'admin-login.html';
+        }
+    </script>
 </head>
 <body>
-    <p>Redirecting to admin login... <a href="admin-login.html">Click here if not redirected</a></p>
+    <p>Redirecting... <a href="admin-login.html">Click here if not redirected</a></p>
 </body>
 </html>
 
