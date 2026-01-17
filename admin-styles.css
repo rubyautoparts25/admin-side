@@ -1,0 +1,392 @@
+/* Admin Panel Styles - Clean and Professional */
+
+/* Admin Logout Button */
+.admin-logout-btn {
+    background: var(--orange-dark);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-left: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-logout-btn:hover {
+    background: #e55a2a;
+    transform: translateY(-2px);
+}
+
+/* Admin Add Part Button */
+.admin-add-part-container {
+    margin: 20px 0;
+    text-align: right;
+}
+
+.admin-add-part-btn {
+    background: var(--orange-medium);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 15px rgba(255, 140, 66, 0.3);
+}
+
+.admin-add-part-btn:hover {
+    background: var(--orange-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 140, 66, 0.4);
+}
+
+/* Admin Part Actions (Edit/Delete buttons on cards) */
+.part-card.admin-mode {
+    position: relative;
+}
+
+.admin-part-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.part-card.admin-mode:hover .admin-part-actions {
+    opacity: 1;
+}
+
+/* On mobile, always show buttons */
+@media (max-width: 768px) {
+    .admin-part-actions {
+        opacity: 1;
+    }
+}
+
+.admin-edit-btn,
+.admin-delete-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.admin-edit-btn {
+    background: #2196F3;
+    color: white;
+}
+
+.admin-edit-btn:hover {
+    background: #1976D2;
+    transform: scale(1.1);
+}
+
+.admin-delete-btn {
+    background: #f44336;
+    color: white;
+}
+
+.admin-delete-btn:hover {
+    background: #d32f2f;
+    transform: scale(1.1);
+}
+
+/* Admin Modal Styles */
+.admin-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    overflow-y: auto;
+}
+
+.admin-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.admin-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.admin-modal-content {
+    position: relative;
+    background: white;
+    border-radius: 15px;
+    max-width: 700px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+    z-index: 10001;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.admin-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 30px;
+    border-bottom: 2px solid var(--beige-dark);
+    background: var(--beige-light);
+    border-radius: 15px 15px 0 0;
+}
+
+.admin-modal-header h2 {
+    color: var(--text-dark);
+    font-size: 1.5rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-modal-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: color 0.3s;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.admin-modal-close:hover {
+    color: var(--orange-dark);
+    background: var(--beige-dark);
+}
+
+.admin-modal-form {
+    padding: 30px;
+}
+
+.admin-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.admin-form-group {
+    margin-bottom: 20px;
+}
+
+.admin-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-dark);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.admin-form-group input,
+.admin-form-group select,
+.admin-form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid var(--beige-dark);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s;
+    background: white;
+}
+
+.admin-form-group input:focus,
+.admin-form-group select:focus,
+.admin-form-group textarea:focus {
+    outline: none;
+    border-color: var(--orange-medium);
+    box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
+}
+
+.admin-form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.admin-form-group small {
+    display: block;
+    margin-top: 5px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+}
+
+.admin-image-preview {
+    margin-top: 10px;
+}
+
+.admin-image-preview img {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
+    border: 2px solid var(--beige-dark);
+    margin-top: 10px;
+}
+
+.admin-form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid var(--beige-dark);
+}
+
+.admin-btn {
+    flex: 1;
+    padding: 14px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.admin-btn-primary {
+    background: var(--orange-medium);
+    color: white;
+}
+
+.admin-btn-primary:hover {
+    background: var(--orange-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 140, 66, 0.3);
+}
+
+.admin-btn-secondary {
+    background: var(--beige-dark);
+    color: var(--text-dark);
+}
+
+.admin-btn-secondary:hover {
+    background: #e8e0d4;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .admin-form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .admin-modal-content {
+        max-width: 95%;
+        margin: 10px;
+    }
+    
+    .admin-modal-header {
+        padding: 20px;
+    }
+    
+    .admin-modal-form {
+        padding: 20px;
+    }
+    
+    .admin-logout-btn {
+        padding: 8px 15px;
+        font-size: 0.85rem;
+        margin-left: 10px;
+    }
+    
+    .admin-add-part-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Ensure admin controls don't interfere with existing design */
+.part-card {
+    transition: all 0.3s;
+}
+
+.part-card.admin-mode:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Loading state */
+.admin-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Success/Error messages */
+.admin-message {
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: none;
+}
+
+.admin-message.success {
+    background: #d4edda;
+    color: #155724;
+    border-left: 4px solid #28a745;
+}
+
+.admin-message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border-left: 4px solid #dc3545;
+}
+
