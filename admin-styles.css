@@ -247,6 +247,16 @@
     font-family: 'Poppins', sans-serif;
     transition: all 0.3s;
     background: white;
+    box-sizing: border-box;
+}
+
+.admin-form-group input::placeholder,
+.admin-form-group textarea::placeholder {
+    overflow: visible;
+    white-space: normal;
+    text-overflow: clip;
+    word-wrap: break-word;
+    line-height: 1.4;
 }
 
 .admin-form-group input:focus,
