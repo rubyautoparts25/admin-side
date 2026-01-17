@@ -178,9 +178,20 @@ function createAddPartModal() {
                 </div>
                 <div class="admin-form-group">
                     <label><i class="fas fa-image"></i> Image</label>
-                    <input type="file" id="newPartImageFile" accept="image/*" onchange="previewNewImage(event)">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                        <label for="newPartImageFile" style="flex: 1; min-width: 150px; padding: 12px 20px; background: var(--beige-light); border: 2px solid var(--beige-dark); border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fas fa-folder-open"></i>
+                            <span>Choose File</span>
+                        </label>
+                        <label for="newPartImageCamera" class="camera-button" style="flex: 1; min-width: 150px; padding: 12px 20px; background: var(--orange-light); border: 2px solid var(--orange-medium); border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fas fa-camera"></i>
+                            <span>Open Camera</span>
+                        </label>
+                    </div>
+                    <input type="file" id="newPartImageFile" accept="image/*" onchange="previewNewImage(event)" style="display: none;">
+                    <input type="file" id="newPartImageCamera" accept="image/*" capture="environment" onchange="previewNewImageFromCamera(event)" style="display: none;">
                     <div id="newImagePreview" class="admin-image-preview"></div>
-                    <small>Or enter image URL: <input type="text" id="newPartImageUrl" placeholder="https://..." style="width: 100%; margin-top: 5px; padding: 8px;"></small>
+                    <small style="display: block; margin-top: 10px;">Or enter image URL: <input type="text" id="newPartImageUrl" placeholder="https://..." style="width: 100%; margin-top: 5px; padding: 8px; border-radius: 5px; border: 1px solid var(--beige-dark);"></small>
                 </div>
                 <div class="admin-form-group">
                     <label><i class="fas fa-align-left"></i> Description</label>
@@ -256,8 +267,11 @@ async function saveNewPart(event) {
     if (imageUrl) formData.append('imageUrl', imageUrl);
     if (price) formData.append('price', price);
     
-    // Add image file if uploaded
-    const imageFile = document.getElementById('newPartImageFile').files[0];
+    // Add image file if uploaded (check both inputs)
+    let imageFile = document.getElementById('newPartImageFile').files[0];
+    if (!imageFile) {
+        imageFile = document.getElementById('newPartImageCamera').files[0];
+    }
     if (imageFile) {
         console.log('📸 Image file selected:', {
             name: imageFile.name,
@@ -443,9 +457,20 @@ function createEditPartModal() {
                 </div>
                 <div class="admin-form-group">
                     <label><i class="fas fa-image"></i> Image</label>
-                    <input type="file" id="editPartImageFile" accept="image/*" onchange="previewEditImage(event)">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                        <label for="editPartImageFile" style="flex: 1; min-width: 150px; padding: 12px 20px; background: var(--beige-light); border: 2px solid var(--beige-dark); border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fas fa-folder-open"></i>
+                            <span>Choose File</span>
+                        </label>
+                        <label for="editPartImageCamera" class="camera-button" style="flex: 1; min-width: 150px; padding: 12px 20px; background: var(--orange-light); border: 2px solid var(--orange-medium); border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fas fa-camera"></i>
+                            <span>Open Camera</span>
+                        </label>
+                    </div>
+                    <input type="file" id="editPartImageFile" accept="image/*" onchange="previewEditImage(event)" style="display: none;">
+                    <input type="file" id="editPartImageCamera" accept="image/*" capture="environment" onchange="previewEditImageFromCamera(event)" style="display: none;">
                     <div id="editImagePreview" class="admin-image-preview"></div>
-                    <small>Or enter image URL: <input type="text" id="editPartImageUrl" placeholder="https://..." style="width: 100%; margin-top: 5px; padding: 8px;"></small>
+                    <small style="display: block; margin-top: 10px;">Or enter image URL: <input type="text" id="editPartImageUrl" placeholder="https://..." style="width: 100%; margin-top: 5px; padding: 8px; border-radius: 5px; border: 1px solid var(--beige-dark);"></small>
                 </div>
                 <div class="admin-form-group">
                     <label><i class="fas fa-align-left"></i> Description</label>
@@ -519,8 +544,11 @@ async function updatePart(event) {
     if (imageUrl) formData.append('imageUrl', imageUrl);
     if (price) formData.append('price', price);
     
-    // Add image file if uploaded
-    const imageFile = document.getElementById('editPartImageFile').files[0];
+    // Add image file if uploaded (check both inputs)
+    let imageFile = document.getElementById('editPartImageFile').files[0];
+    if (!imageFile) {
+        imageFile = document.getElementById('editPartImageCamera').files[0];
+    }
     if (imageFile) {
         console.log('📸 Image file selected for update:', {
             name: imageFile.name,

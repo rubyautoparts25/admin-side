@@ -1,5 +1,53 @@
 /* Admin Panel Styles - Clean and Professional */
 
+/* Image Upload Buttons */
+label[for*="ImageFile"],
+label[for*="ImageCamera"] {
+    transition: all 0.3s ease;
+}
+
+label[for*="ImageFile"]:hover {
+    background: var(--beige-dark) !important;
+    border-color: var(--orange-medium) !important;
+    transform: translateY(-2px);
+}
+
+label[for*="ImageCamera"]:hover {
+    background: var(--orange-medium) !important;
+    border-color: var(--orange-dark) !important;
+    transform: translateY(-2px);
+}
+
+label[for*="ImageFile"]:active,
+label[for*="ImageCamera"]:active {
+    transform: scale(0.98);
+}
+
+/* Hide camera button on desktop, show on mobile */
+@media (min-width: 769px) {
+    .camera-button {
+        display: none !important;
+    }
+    
+    label[for*="ImageFile"] {
+        width: 100% !important;
+        max-width: 300px !important;
+    }
+}
+
+/* Show camera button on mobile */
+@media (max-width: 768px) {
+    .camera-button {
+        display: flex !important;
+    }
+    
+    label[for*="ImageFile"],
+    label[for*="ImageCamera"] {
+        flex: 1 !important;
+        min-width: 140px !important;
+    }
+}
+
 /* Admin Logout Button */
 .admin-logout-btn {
     background: var(--orange-dark);
