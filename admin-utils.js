@@ -519,6 +519,24 @@ function previewEditImage(event) {
             preview.innerHTML = `<img src="${e.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 5px; margin-top: 10px;">`;
         };
         reader.readAsDataURL(file);
+        // Also set the camera input to empty to avoid conflicts
+        document.getElementById('editPartImageCamera').value = '';
+    }
+}
+
+function previewEditImageFromCamera(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('editImagePreview');
+            preview.innerHTML = `<img src="${e.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 5px; margin-top: 10px;">`;
+        };
+        reader.readAsDataURL(file);
+        // Copy the file to the main file input for form submission
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        document.getElementById('editPartImageFile').files = dataTransfer.files;
     }
 }
 
