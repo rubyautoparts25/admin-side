@@ -2,9 +2,8 @@
 // Update these URLs for separate deployment
 
 // Main website URL (where admin redirects after login)
-// For same-domain deployment: '../index.html'
-// For separate deployment: 'https://your-website.vercel.app/'
-window.ADMIN_WEBSITE_URL = '../index.html';
+// Production website URL (Vercel)
+window.ADMIN_WEBSITE_URL = 'https://public-website-alpha-cyan.vercel.app/';
 
 // API Base URL (backend server)
 // Production API URL (Railway)
