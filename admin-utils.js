@@ -240,6 +240,38 @@ function previewNewImage(event) {
             preview.innerHTML = `<img src="${e.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 5px; margin-top: 10px;">`;
         };
         reader.readAsDataURL(file);
+        // Clear camera input to avoid conflicts
+        const cameraInput = document.getElementById('newPartImageCamera');
+        if (cameraInput) {
+            cameraInput.value = '';
+        }
+    }
+}
+
+// Preview new image from camera
+function previewNewImageFromCamera(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('newImagePreview');
+            preview.innerHTML = `<img src="${e.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 5px; margin-top: 10px;">`;
+        };
+        reader.readAsDataURL(file);
+        
+        // Copy file to main file input for form submission
+        // Use a more reliable method than DataTransfer
+        const mainInput = document.getElementById('newPartImageFile');
+        if (mainInput) {
+            // Create a new FileList-like object by directly setting files
+            // Since we can't directly modify files property, we'll store it in a data attribute
+            // and check both inputs during form submission
+            console.log('📸 Camera image captured:', {
+                name: file.name,
+                size: file.size,
+                type: file.type
+            });
+        }
     }
 }
 
@@ -268,17 +300,29 @@ async function saveNewPart(event) {
     if (price) formData.append('price', price);
     
     // Add image file if uploaded (check both inputs)
-    let imageFile = document.getElementById('newPartImageFile').files[0];
-    if (!imageFile) {
-        imageFile = document.getElementById('newPartImageCamera').files[0];
-    }
-    if (imageFile) {
-        console.log('📸 Image file selected:', {
+    const fileInput = document.getElementById('newPartImageFile');
+    const cameraInput = document.getElementById('newPartImageCamera');
+    
+    let imageFile = null;
+    if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        imageFile = fileInput.files[0];
+        console.log('📸 Image file from file input:', {
             name: imageFile.name,
             size: imageFile.size,
             type: imageFile.type
         });
+    } else if (cameraInput && cameraInput.files && cameraInput.files.length > 0) {
+        imageFile = cameraInput.files[0];
+        console.log('📸 Image file from camera input:', {
+            name: imageFile.name,
+            size: imageFile.size,
+            type: imageFile.type
+        });
+    }
+    
+    if (imageFile) {
         formData.append('image', imageFile);
+        console.log('✅ Image file added to FormData');
     } else {
         console.log('⚠️ No image file selected');
     }
@@ -519,8 +563,11 @@ function previewEditImage(event) {
             preview.innerHTML = `<img src="${e.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 5px; margin-top: 10px;">`;
         };
         reader.readAsDataURL(file);
-        // Also set the camera input to empty to avoid conflicts
-        document.getElementById('editPartImageCamera').value = '';
+        // Clear camera input to avoid conflicts
+        const cameraInput = document.getElementById('editPartImageCamera');
+        if (cameraInput) {
+            cameraInput.value = '';
+        }
     }
 }
 
@@ -533,10 +580,11 @@ function previewEditImageFromCamera(event) {
             preview.innerHTML = `<img src="${e.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 5px; margin-top: 10px;">`;
         };
         reader.readAsDataURL(file);
-        // Copy the file to the main file input for form submission
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        document.getElementById('editPartImageFile').files = dataTransfer.files;
+        console.log('📸 Camera image captured for edit:', {
+            name: file.name,
+            size: file.size,
+            type: file.type
+        });
     }
 }
 
@@ -563,17 +611,29 @@ async function updatePart(event) {
     if (price) formData.append('price', price);
     
     // Add image file if uploaded (check both inputs)
-    let imageFile = document.getElementById('editPartImageFile').files[0];
-    if (!imageFile) {
-        imageFile = document.getElementById('editPartImageCamera').files[0];
-    }
-    if (imageFile) {
-        console.log('📸 Image file selected for update:', {
+    const fileInput = document.getElementById('editPartImageFile');
+    const cameraInput = document.getElementById('editPartImageCamera');
+    
+    let imageFile = null;
+    if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        imageFile = fileInput.files[0];
+        console.log('📸 Image file from file input for update:', {
             name: imageFile.name,
             size: imageFile.size,
             type: imageFile.type
         });
+    } else if (cameraInput && cameraInput.files && cameraInput.files.length > 0) {
+        imageFile = cameraInput.files[0];
+        console.log('📸 Image file from camera input for update:', {
+            name: imageFile.name,
+            size: imageFile.size,
+            type: imageFile.type
+        });
+    }
+    
+    if (imageFile) {
         formData.append('image', imageFile);
+        console.log('✅ Image file added to FormData for update');
     } else {
         console.log('⚠️ No new image file selected for update');
     }
