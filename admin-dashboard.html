@@ -48,21 +48,21 @@
                     </button>
                 </div>
                 <div id="inventoryStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-                    <div style="text-align: center; padding: 15px; background: var(--beige-light); border-radius: 8px;">
+                    <div onclick="showFilteredParts('all')" style="text-align: center; padding: 15px; background: var(--beige-light); border-radius: 8px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent;" onmouseover="this.style.borderColor='var(--orange-medium)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='transparent'; this.style.transform='translateY(0)';">
                         <div style="font-size: 2rem; font-weight: 700; color: var(--orange-dark);" id="totalParts">0</div>
                         <div style="color: var(--text-light); font-size: 0.9rem; margin-top: 5px;">Total Parts</div>
                     </div>
-                    <div style="text-align: center; padding: 15px; background: var(--beige-light); border-radius: 8px;">
+                    <div onclick="showFilteredParts('totalStock')" style="text-align: center; padding: 15px; background: var(--beige-light); border-radius: 8px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent;" onmouseover="this.style.borderColor='var(--orange-medium)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='transparent'; this.style.transform='translateY(0)';">
                         <div style="font-size: 2rem; font-weight: 700; color: var(--orange-dark);" id="totalStock">0</div>
                         <div style="color: var(--text-light); font-size: 0.9rem; margin-top: 5px;">Total Stock</div>
                     </div>
-                    <div style="text-align: center; padding: 15px; background: #fff3cd; border-radius: 8px; border: 2px solid #ffc107;" id="lowStockAlert">
+                    <div onclick="showFilteredParts('lowStock')" style="text-align: center; padding: 15px; background: #fff3cd; border-radius: 8px; border: 2px solid #ffc107; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 193, 7, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';" id="lowStockAlert">
                         <div style="font-size: 2rem; font-weight: 700; color: #f57c00;" id="lowStockCount">0</div>
                         <div style="color: var(--text-light); font-size: 0.9rem; margin-top: 5px;">
                             <i class="fas fa-exclamation-triangle"></i> Low Stock Items
                         </div>
                     </div>
-                    <div style="text-align: center; padding: 15px; background: #f8d7da; border-radius: 8px; border: 2px solid #dc3545;" id="outOfStockAlert">
+                    <div onclick="showFilteredParts('outOfStock')" style="text-align: center; padding: 15px; background: #f8d7da; border-radius: 8px; border: 2px solid #dc3545; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(220, 53, 69, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';" id="outOfStockAlert">
                         <div style="font-size: 2rem; font-weight: 700; color: #dc3545;" id="outOfStockCount">0</div>
                         <div style="color: var(--text-light); font-size: 0.9rem; margin-top: 5px;">
                             <i class="fas fa-times-circle"></i> Out of Stock
@@ -84,6 +84,25 @@
                     <button onclick="scrollToLowStock()" style="background: white; color: #ff6b6b; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
                         View Items <i class="fas fa-arrow-down"></i>
                     </button>
+                </div>
+            </div>
+
+            <!-- Filtered Parts Modal -->
+            <div id="filteredPartsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; overflow-y: auto;">
+                <div style="background: white; margin: 50px auto; max-width: 1200px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-height: 90vh; display: flex; flex-direction: column;">
+                    <div style="padding: 25px; border-bottom: 2px solid var(--beige-dark); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                        <h2 style="margin: 0; font-size: 1.5rem; color: var(--text-dark);" id="filteredModalTitle">
+                            <i class="fas fa-list"></i> Parts List
+                        </h2>
+                        <button onclick="closeFilteredPartsModal()" style="background: var(--orange-dark); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;" onmouseover="this.style.background='#e55a2a';" onmouseout="this.style.background='var(--orange-dark)';">
+                            <i class="fas fa-times"></i> Close
+                        </button>
+                    </div>
+                    <div style="padding: 25px; overflow-y: auto; flex: 1;">
+                        <div id="filteredPartsTable" style="overflow-x: auto;">
+                            <!-- Table will be inserted here -->
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -119,6 +138,9 @@
             }
         }
 
+        // Store all parts globally for filtering
+        let allPartsData = [];
+
         // Load parts on page load
         async function loadParts() {
             if (!checkAdminAuth()) return;
@@ -142,6 +164,8 @@
                             }
                         })
                     );
+                    // Store parts globally
+                    allPartsData = partsWithStock;
                     displayParts(partsWithStock);
                     updateInventorySummary(partsWithStock);
                 } else {
@@ -322,9 +346,150 @@
             container.innerHTML = html;
         }
 
+        // Show filtered parts modal
+        function showFilteredParts(filterType) {
+            if (!allPartsData || allPartsData.length === 0) {
+                alert('No parts data available. Please wait for parts to load.');
+                return;
+            }
+
+            let filteredParts = [];
+            let title = '';
+
+            switch(filterType) {
+                case 'all':
+                    filteredParts = allPartsData;
+                    title = 'All Parts';
+                    break;
+                case 'lowStock':
+                    filteredParts = allPartsData.filter(part => {
+                        const stock = part.stockQuantity !== undefined ? parseInt(part.stockQuantity) : 0;
+                        const threshold = part.lowStockThreshold !== undefined ? parseInt(part.lowStockThreshold) : 5;
+                        return stock > 0 && stock <= threshold;
+                    });
+                    title = 'Low Stock Items';
+                    break;
+                case 'outOfStock':
+                    filteredParts = allPartsData.filter(part => {
+                        const stock = part.stockQuantity !== undefined ? parseInt(part.stockQuantity) : 0;
+                        return stock === 0;
+                    });
+                    title = 'Out of Stock Items';
+                    break;
+                case 'totalStock':
+                    // Show all parts sorted by stock quantity
+                    filteredParts = [...allPartsData].sort((a, b) => {
+                        const stockA = a.stockQuantity !== undefined ? parseInt(a.stockQuantity) : 0;
+                        const stockB = b.stockQuantity !== undefined ? parseInt(b.stockQuantity) : 0;
+                        return stockB - stockA; // Descending order
+                    });
+                    title = 'All Parts (Sorted by Stock)';
+                    break;
+            }
+
+            displayFilteredPartsTable(filteredParts, title);
+            document.getElementById('filteredPartsModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Display filtered parts in table
+        function displayFilteredPartsTable(parts, title) {
+            document.getElementById('filteredModalTitle').innerHTML = `<i class="fas fa-list"></i> ${title} (${parts.length})`;
+            
+            if (parts.length === 0) {
+                document.getElementById('filteredPartsTable').innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--text-light);">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                        <p>No parts found in this category.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let tableHTML = `
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+                    <thead>
+                        <tr style="background: var(--beige-light); border-bottom: 2px solid var(--orange-dark);">
+                            <th style="padding: 15px; text-align: left; font-weight: 600; color: var(--text-dark);">Car Brand</th>
+                            <th style="padding: 15px; text-align: left; font-weight: 600; color: var(--text-dark);">Part Number</th>
+                            <th style="padding: 15px; text-align: left; font-weight: 600; color: var(--text-dark);">Part Brand</th>
+                            <th style="padding: 15px; text-align: center; font-weight: 600; color: var(--text-dark);">Quantity</th>
+                            <th style="padding: 15px; text-align: left; font-weight: 600; color: var(--text-dark);">Category</th>
+                            <th style="padding: 15px; text-align: center; font-weight: 600; color: var(--text-dark);">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            parts.forEach((part, index) => {
+                const stock = part.stockQuantity !== undefined ? parseInt(part.stockQuantity) : 0;
+                const threshold = part.lowStockThreshold !== undefined ? parseInt(part.lowStockThreshold) : 5;
+                const isLowStock = stock > 0 && stock <= threshold;
+                const isOutOfStock = stock === 0;
+                const rowColor = isOutOfStock ? '#f8d7da' : (isLowStock ? '#fff3cd' : 'white');
+                const stockColor = isOutOfStock ? '#dc3545' : (isLowStock ? '#f57c00' : '#4caf50');
+
+                tableHTML += `
+                    <tr style="background: ${rowColor}; border-bottom: 1px solid var(--beige-dark); transition: all 0.2s;" onmouseover="this.style.background='${isOutOfStock ? '#f5c6cb' : (isLowStock ? '#ffeaa7' : '#f0f0f0')}';" onmouseout="this.style.background='${rowColor}';">
+                        <td style="padding: 12px 15px; color: var(--text-dark);">${part.carBrand || 'N/A'}</td>
+                        <td style="padding: 12px 15px; color: var(--text-dark); font-weight: 500;">${part.partNumber || 'N/A'}</td>
+                        <td style="padding: 12px 15px; color: var(--text-dark);">${part.partBrand || 'N/A'}</td>
+                        <td style="padding: 12px 15px; text-align: center;">
+                            <span style="color: ${stockColor}; font-weight: 700; font-size: 1.1rem;">${stock.toLocaleString()}</span>
+                            ${isLowStock || isOutOfStock ? `
+                                <div style="font-size: 0.75rem; color: var(--text-light); margin-top: 2px;">
+                                    ${isOutOfStock ? 'Out of Stock' : `Threshold: ${threshold}`}
+                                </div>
+                            ` : ''}
+                        </td>
+                        <td style="padding: 12px 15px; color: var(--text-light); text-transform: capitalize;">${(part.category || 'N/A').replace(/-/g, ' ')}</td>
+                        <td style="padding: 12px 15px; text-align: center;">
+                            <button onclick="openEditPartModal('${part._id}'); closeFilteredPartsModal();" style="background: var(--orange-medium); color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 0.85rem; margin-right: 5px; transition: all 0.2s;" onmouseover="this.style.background='var(--orange-dark)';" onmouseout="this.style.background='var(--orange-medium)';" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('filteredPartsTable').innerHTML = tableHTML;
+        }
+
+        // Close filtered parts modal
+        function closeFilteredPartsModal() {
+            document.getElementById('filteredPartsModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('filteredPartsModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeFilteredPartsModal();
+                    }
+                });
+            }
+
+            // Close on Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal && modal.style.display === 'block') {
+                    closeFilteredPartsModal();
+                }
+            });
+        });
+
         // Make functions globally accessible
         window.loadParts = loadParts;
         window.scrollToLowStock = scrollToLowStock;
+        window.showFilteredParts = showFilteredParts;
+        window.closeFilteredPartsModal = closeFilteredPartsModal;
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
