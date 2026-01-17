@@ -7,9 +7,8 @@
 window.ADMIN_WEBSITE_URL = '../index.html';
 
 // API Base URL (backend server)
-// Development: 'http://localhost:3000/api'
-// Production: 'https://your-backend.railway.app/api'
+// Production API URL (Railway)
 if (typeof window.API_BASE_URL === 'undefined') {
-    window.API_BASE_URL = 'http://localhost:3000/api';
+    window.API_BASE_URL = 'https://server-side-production-7658.up.railway.app/api';
 }
 
